@@ -1,3 +1,6 @@
+# The below code explains the structure of an Encoder, consisting of the Token embedding, 
+# the positional embedding, and then the encoder block, which contains all the multi-head attention part 
+# and the complicated part of the encoder, and this part is just integrating all of that together.
 import torch
 import torch.nn as nn
 
