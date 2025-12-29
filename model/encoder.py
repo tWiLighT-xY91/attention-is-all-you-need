@@ -1,22 +1,45 @@
+import torch
 import torch.nn as nn
 
-class EncoderBlock(nn.Module):
-    def __init__(self, d_model, num_heads, d_ff):
+class Encoder(nn.Module):
+    def __init__( self, vocab_size, d_model, num_layers, num_heads, d_ff, max_len=5000, dropout=0.1):
         super().__init__()
 
-        self.self_attention = MultiHeadAttention(d_model, num_heads) # Initializing the MultiHeadAttention class
-        self.feed_forward = PositionwiseFeedForward(d_model, d_ff) # Initializing the PositionwiseFeedForward class
+        self.d_model = d_model
 
-        self.norm1 = nn.LayerNorm(d_model) # Linnear normalization layer 1
-        self.norm2 = nn.LayerNorm(d_model) # Linnear normalization layer 2
+        # Token embedding
+        self.embedding = nn.Embedding(vocab_size, d_model)
+
+        # Positional encoding
+        self.positional_encoding = PositionalEncoding(d_model, max_len)
+
+        # Encoder blocks
+        self.layers = nn.ModuleList([
+            EncoderBlock(d_model, num_heads, d_ff)
+            for _ in range(num_layers)
+        ])
+
+        self.dropout = nn.Dropout(dropout)
 
     def forward(self, x, mask=None):
-        # Self-attention sublayer
-        attn_output, _ = self.self_attention(x, mask)
-        x = self.norm1(x + attn_output)
+        """
+        x: (batch, seq_len) — token indices
+        mask: (batch, 1, 1, seq_len) — padding mask
+        """
 
-        # Feed-forward sublayer
-        ff_output = self.feed_forward(x)
-        x = self.norm2(x + ff_output)
+        # 1. Token → vector
+        x = self.embedding(x)  # (batch, seq_len, d_model)
+
+        # 2. Scale embeddings (paper detail people forget)
+        x = x * (self.d_model ** 0.5)
+
+        # 3. Add positional encoding
+        x = self.positional_encoding(x)
+
+        x = self.dropout(x)
+
+        # 4. Pass through encoder blocks
+        for layer in self.layers:
+            x = layer(x, mask)
 
         return x
