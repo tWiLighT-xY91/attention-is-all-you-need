@@ -12,7 +12,7 @@ def create_look_ahead_mask(seq_len, device):
     """
     returns: (1, 1, seq_len, seq_len)
     """
-    mask = torch.tril(torch.ones(seq_len, seq_len, device=device))
+    mask = torch.tril(torch.ones(seq_len, seq_len, device=device)).bool()
     return mask.unsqueeze(0).unsqueeze(1)
 
 
