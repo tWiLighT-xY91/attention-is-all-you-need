@@ -1,18 +1,19 @@
 import torch
 import torch.nn as nn
-import math
 from model.scaling_dot_attention import ScaledDotProductAttention
+
+
 class MultiHeadAttention(nn.Module):
     def __init__(self, d_model, num_heads):
-        super().__init__() # Is a must in nn.Module subclasses from torch, or else your model will train, but will give no output
+        super().__init__()
 
-        assert d_model % num_heads == 0, "d_model must be divisible by num_heads" # An alternative for if...: raiseValueError()
+        assert d_model % num_heads == 0, "d_model must be divisible by num_heads"
 
         self.d_model = d_model
         self.num_heads = num_heads
-        self.d_k = d_model // num_heads # double slash for integer division
+        self.d_k = d_model // num_heads
 
-        self.W_q = nn.Linear(d_model, d_model) # the W matrices for Q, K and V which actually gives the meaning for Multi-head Attention
+        self.W_q = nn.Linear(d_model, d_model)
         self.W_k = nn.Linear(d_model, d_model)
         self.W_v = nn.Linear(d_model, d_model)
 
@@ -35,22 +36,34 @@ class MultiHeadAttention(nn.Module):
         return: (batch, seq_len, d_model)
         """
         batch_size, heads, seq_len, d_k = x.size()
-        x = x.transpose(1, 2).contiguous() # contiguos to ensure memory is contiguos and the model doesn't learn garbage
+        x = x.transpose(1, 2).contiguous()
         return x.view(batch_size, seq_len, heads * d_k)
 
-    def forward(self, x, mask=None):
-        Q = self.W_q(x)
-        K = self.W_k(x)
-        V = self.W_v(x)
+    def forward(self, query, key, value, mask=None):
+        """
+        query: (batch, q_len, d_model)
+        key:   (batch, k_len, d_model)
+        value: (batch, v_len, d_model)
+        mask:  (batch, 1, q_len, k_len) or None
+        """
 
+        # Linear projections
+        Q = self.W_q(query)
+        K = self.W_k(key)
+        V = self.W_v(value)
+
+        # Split into heads
         Q = self.split_heads(Q)
         K = self.split_heads(K)
         V = self.split_heads(V)
 
-        attention_output, attention_weights = self.attention(Q, K, V, mask)
+        # Scaled dot-product attention
+        attn_output, attn_weights = self.attention(Q, K, V, mask)
 
-        concat = self.combine_heads(attention_output)
+        # Combine heads
+        attn_output = self.combine_heads(attn_output)
 
-        output = self.W_o(concat)
+        # Final linear projection
+        output = self.W_o(attn_output)
 
-        return output, attention_weights
+        return output, attn_weights

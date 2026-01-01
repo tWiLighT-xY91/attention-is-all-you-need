@@ -15,7 +15,7 @@ class EncoderBlock(nn.Module):
 
     def forward(self, x, mask=None):
         # Self-attention sublayer
-        attn_output, _ = self.self_attention(x, mask)
+        attn_output, _ = self.self_attention(x, x, x, mask)
         x = self.norm1(x + attn_output)
 
         # Feed-forward sublayer

@@ -16,7 +16,7 @@ class DecoderBlock(nn.Module):
 
     def forward(self, x, enc_output, src_mask=None, tgt_mask=None):
         # 1. Masked self-attention
-        attn1, _ = self.self_attention(x, tgt_mask)
+        attn1, _ = self.self_attention(x, x, x, tgt_mask)
         x = self.norm1(x + attn1)
 
         # 2. Encoder-decoder attention
