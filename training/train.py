@@ -42,3 +42,39 @@ def train_step(model, batch, loss_fn, optimizer, device, pad_idx=0):
     optimizer.step()
 
     return loss.item()
+
+from tqdm import tqdm
+
+def train_model(
+    model,
+    dataloader,
+    optimizer,
+    scheduler,
+    loss_fn,
+    device,
+    epochs,
+    pad_idx=0
+):
+    model.to(device)
+
+    for epoch in range(1, epochs + 1):
+        total_loss = 0.0
+
+        loop = tqdm(dataloader, desc=f"Epoch {epoch}")
+        for batch in loop:
+            loss = train_step(
+                model=model,
+                batch=batch,
+                loss_fn=loss_fn,
+                optimizer=optimizer,
+                device=device,
+                pad_idx=pad_idx
+            )
+
+            scheduler.step()
+            total_loss += loss
+
+            loop.set_postfix(loss=loss)
+
+        avg_loss = total_loss / len(dataloader)
+        print(f"Epoch {epoch} | Avg Loss: {avg_loss:.4f}")
