@@ -3,6 +3,8 @@
 # and the complicated part of the encoder, and this part is just integrating all of that together.
 import torch
 import torch.nn as nn
+from model.positional_encoding import PositionalEncoding
+from model.encoder_block import EncoderBlock
 
 class Encoder(nn.Module):
     def __init__( self, vocab_size, d_model, num_layers, num_heads, d_ff, max_len=5000, dropout=0.1):
