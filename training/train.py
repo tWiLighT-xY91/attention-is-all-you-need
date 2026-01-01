@@ -1,6 +1,6 @@
 import torch
 from masks.masks import create_padding_mask, create_decoder_mask
-
+import math
 
 def train_step(model, batch, loss_fn, optimizer, device, pad_idx=0):
     """

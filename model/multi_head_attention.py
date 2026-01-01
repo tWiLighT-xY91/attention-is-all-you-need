@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 import math
-
+from model.scaling_dot_attention import ScaledDotProductAttention
 class MultiHeadAttention(nn.Module):
     def __init__(self, d_model, num_heads):
         super().__init__() # Is a must in nn.Module subclasses from torch, or else your model will train, but will give no output
