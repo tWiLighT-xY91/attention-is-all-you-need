@@ -1,4 +1,7 @@
 import torch
+torch.backends.cuda.matmul.allow_tf32 = False
+torch.backends.cudnn.benchmark = False
+
 from torch.utils.data import DataLoader
 import torch.optim as optim
 
@@ -70,6 +73,15 @@ def main():
         epochs=config.epochs,
         pad_idx=PAD_IDX
     )
+    import os
+    os.makedirs("checkpoints", exist_ok=True)
+
+    torch.save(
+        model.state_dict(),
+        "checkpoints/transformer_epoch10.pt"
+    )
+
+    print("✅ Model checkpoint saved. You may now sleep.")
 
 
 if __name__ == "__main__":
