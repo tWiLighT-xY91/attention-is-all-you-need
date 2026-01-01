@@ -1,3 +1,7 @@
+from model.multi_head_attention import MultiHeadAttention
+from model.feed_forward_network import PositionwiseFeedForward
+import torch.nn as nn
+import torch
 class DecoderBlock(nn.Module):
     def __init__(self, d_model, num_heads, d_ff):
         super().__init__()

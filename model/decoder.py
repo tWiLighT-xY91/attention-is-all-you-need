@@ -1,5 +1,7 @@
 import torch
 import torch.nn as nn
+from model.positional_encoding import PositionalEncoding
+from model.decoder_block import DecoderBlock
 
 class Decoder(nn.Module):
     def __init__(

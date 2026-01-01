@@ -1,4 +1,7 @@
 import torch.nn as nn
+from model.multi_head_attention import MultiHeadAttention
+from model.feed_forward_network import PositionwiseFeedForward
+import torch
 
 class EncoderBlock(nn.Module):
     def __init__(self, d_model, num_heads, d_ff):
