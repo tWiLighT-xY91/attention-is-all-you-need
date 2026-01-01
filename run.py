@@ -4,7 +4,7 @@ torch.backends.cudnn.benchmark = False
 
 from torch.utils.data import DataLoader
 import torch.optim as optim
-
+import os
 from model.transformer import Transformer
 from training.train import train_model
 from training.loss import get_loss_fn
@@ -12,9 +12,12 @@ from training.scheduler import TransformerLRScheduler
 from utils.dataset import TranslationDataset, collate_fn
 from utils.tokenizer import build_vocab, PAD_IDX
 import config
+import argparse
 
 
-def main():
+
+def main(train: bool):
+
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     # Build vocabularies (from training data only)
@@ -63,26 +66,31 @@ def main():
     loss_fn = get_loss_fn(PAD_IDX)
 
     # Train
-    train_model(
-        model=model,
-        dataloader=dataloader,
-        optimizer=optimizer,
-        scheduler=scheduler,
-        loss_fn=loss_fn,
-        device=device,
-        epochs=config.epochs,
-        pad_idx=PAD_IDX
-    )
-    import os
-    os.makedirs("checkpoints", exist_ok=True)
-
-    torch.save(
-        model.state_dict(),
-        "checkpoints/transformer_epoch10.pt"
-    )
-
-    print("✅ Model checkpoint saved. You may now sleep.")
+    if train:
+           train_model(
+            model=model,
+            dataloader=dataloader,
+            optimizer=optimizer,
+            scheduler=scheduler,
+            loss_fn=loss_fn,
+            device=device,
+            epochs=config.epochs,
+            pad_idx=PAD_IDX
+        )
+          
+        os.makedirs("checkpoints", exist_ok=True)
+        torch.save(
+         model.state_dict(),
+         "checkpoints/transformer_epoch10.pt"
+         )
+        print("✅ Model checkpoint saved. You may now sleep.")
+    
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--train", action="store_true")
+    args = parser.parse_args()
+
+    main(train=args.train)
+
