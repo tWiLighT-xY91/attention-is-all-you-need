@@ -17,7 +17,6 @@ import argparse
 
 
 def main(train: bool):
-
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     # Build vocabularies (from training data only)
@@ -50,7 +49,6 @@ def main(train: bool):
         dropout=config.dropout
     )
 
-    # Optimizer (Adam with paper settings)
     optimizer = optim.Adam(
         model.parameters(),
         betas=(0.9, 0.98),
@@ -65,9 +63,8 @@ def main(train: bool):
 
     loss_fn = get_loss_fn(PAD_IDX)
 
-    # Train
     if train:
-           train_model(
+        train_model(
             model=model,
             dataloader=dataloader,
             optimizer=optimizer,
@@ -77,20 +74,21 @@ def main(train: bool):
             epochs=config.epochs,
             pad_idx=PAD_IDX
         )
-          
+
+        import os
         os.makedirs("checkpoints", exist_ok=True)
         torch.save(
-         model.state_dict(),
-         "checkpoints/transformer_epoch10.pt"
-         )
-        print("✅ Model checkpoint saved. You may now sleep.")
-    
+            model.state_dict(),
+            "checkpoints/transformer_epoch10.pt"
+        )
+        print("✅ Model checkpoint saved.")
 
 
 if __name__ == "__main__":
+    import argparse
+
     parser = argparse.ArgumentParser()
     parser.add_argument("--train", action="store_true")
     args = parser.parse_args()
 
     main(train=args.train)
-
