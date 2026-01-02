@@ -1,4 +1,5 @@
 import torch
+from masks.masks import create_decoder_mask
 from utils.tokenizer import BOS_IDX, EOS_IDX, PAD_IDX
 
 def greedy_decode(model, src, src_mask, max_len, device):
@@ -9,7 +10,7 @@ def greedy_decode(model, src, src_mask, max_len, device):
     tgt = torch.tensor([[BOS_IDX]], device=device)
 
     for _ in range(max_len):
-        tgt_mask = model.make_tgt_mask(tgt)
+        tgt_mask = create_decoder_mask(tgt, PAD_IDX).to(device)
 
         dec_output = model.decoder(
             tgt,
